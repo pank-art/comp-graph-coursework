@@ -6,8 +6,6 @@ def init_window(width=800, height=600, title="OpenGL Window"):
     if not glfw.init():
         raise Exception("GLFW could not be initialized")
 
-    # glfw.window_hint(glfw.DEPTH_BITS, 24)  # Задаём 24 бита для глубины
-
     window = glfw.create_window(width, height, title, None, None)
     if not window:
         glfw.terminate()

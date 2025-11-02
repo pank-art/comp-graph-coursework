@@ -1,8 +1,4 @@
-from collections import defaultdict
-import sys
-import glfw
 import numpy as np
-import math
 from OpenGL.GL import *
 
 
@@ -67,7 +63,7 @@ class CUBE(Shape):
         ])
         # Грани куба (по индексу вершин)
         self.faces = [
-            [1, 2, 3, 0],  # Передняя     Если p - n : 3   , а еслт нет , тогда
+            [1, 2, 3, 0],  # Передняя
             [3, 2, 6, 7],  # Верхняя грань
             [6, 5, 1, 2],  # Правая грань
             [5, 4, 0, 1],  # Нижняя грань
@@ -281,79 +277,6 @@ class CUBE(Shape):
             else:  # Тут несколько одинаковых точек
                 self.normals[i2] = self.normals[i1]
                 self.normals[i3] = self.normals[i1]
-
-        # Нормализуем все нормали
-        self.normals = self.normals / np.linalg.norm(self.normals, axis=1)[:, np.newaxis]
-
-        # Ориентируем нормали наружу (проверяем их ориентацию относительно внешнего вектора)
-        # Для этого используем точку внутри объекта (например, центр) и смотрим на угол с нормалью
-        center = np.mean(self.vertices, axis=0)  # Центральная точка объекта
-
-        for i in range(len(self.vertices)):
-            # Направление от центра к вершине
-            direction_to_center = self.vertices[i] - center
-            # Скалярное произведение с нормалью
-            if np.dot(self.normals[i], direction_to_center) < 0:
-                # Если нормаль направлена внутрь (отрицательное скалярное произведение), инвертируем её
-                self.normals[i] = -self.normals[i]
-
-
-    def _update_normals_1(self):
-        self.normals = np.zeros_like(self.vertices)
-
-        unic_points = defaultdict(tuple)
-
-        # Проходим по треугольникам
-        for i in range(0, len(self.vertices) - 2, 1):
-            i1, i2, i3 = i, i + 1, i + 2
-
-            # Получаем вершины треугольника
-            v1 = self.vertices[i1]
-            v2 = self.vertices[i2]
-            v3 = self.vertices[i3]
-
-            # Вычисляем векторы сторон
-            edge1 = v2 - v1
-            edge2 = v3 - v1
-
-            # Нормаль треугольника — векторное произведение
-            normal = np.cross(edge1, edge2)
-
-            if np.linalg.norm(normal) != 0:  # Тут разные точки
-                # Присваиваем нормаль каждой вершине треугольника
-                if unic_points.get(tuple(self.vertices[i1])):
-                    self.normals[i1] = unic_points[tuple(self.vertices[i1])]
-                else:
-                    self.normals[i1] = normal
-                    unic_points[tuple(self.vertices[i1])] = tuple(normal)
-
-                if unic_points.get(tuple(self.vertices[i2])):
-                    self.normals[i2] = unic_points[tuple(self.vertices[i2])]
-                else:
-                    self.normals[i2] = normal
-                    unic_points[tuple(self.vertices[i2])] = tuple(normal)
-
-                if unic_points.get(tuple(self.vertices[i3])):
-                    self.normals[i3] = unic_points[tuple(self.vertices[i3])]
-                else:
-                    self.normals[i3] = normal
-                    unic_points[tuple(self.vertices[i3])] = tuple(normal)
-
-                self.normals[i1] = self.normals[i1] / np.linalg.norm(self.normals[i1])
-                self.normals[i2] = self.normals[i2] / np.linalg.norm(self.normals[i2])
-                self.normals[i3] = self.normals[i3] / np.linalg.norm(self.normals[i3])
-            else:  # Тут несколько одинаковых точек
-                if unic_points.get(tuple(self.vertices[i2])):
-                    self.normals[i2] = unic_points[tuple(self.vertices[i2])]
-                else:
-                    self.normals[i2] = self.normals[i1]
-                    unic_points[tuple(self.vertices[i2])] = tuple(self.normals[i1])
-
-                if unic_points.get(tuple(self.vertices[i3])):
-                    self.normals[i3] = unic_points[tuple(self.vertices[i3])]
-                else:
-                    self.normals[i3] = self.normals[i1]
-                    unic_points[tuple(self.vertices[i3])] = tuple(self.normals[i1])
 
         # Нормализуем все нормали
         self.normals = self.normals / np.linalg.norm(self.normals, axis=1)[:, np.newaxis]

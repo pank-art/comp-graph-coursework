@@ -1,4 +1,3 @@
-from collections import defaultdict
 from OpenGL.GLUT import *
 import numpy
 import numpy as np
